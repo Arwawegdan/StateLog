@@ -11,6 +11,7 @@ public interface INationalityUnitOfWork
     Task Update(List<Nationality> entities);
 
     Task Delete(Nationality entity);
+    Task Delete(Guid id); 
     Task Delete(IEnumerable<Nationality> entities);
 
     Task<IEnumerable<Nationality>> ReadByTagValue(string text);

@@ -28,4 +28,7 @@ public class NationalitiesController : ControllerBase
 
     [HttpDelete]
     public async virtual Task Delete([FromBody] Nationality entity) => await _unitOfWork.Delete(entity);
+
+    [HttpDelete("{id}")]
+    public async virtual Task Delete([FromRoute] Guid id) => await _unitOfWork.Delete(id);
 }

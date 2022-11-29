@@ -32,14 +32,14 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
     public async Task Create(Nationality nationality)
     {
             StateLogCustomTags stateLogCustomTags = new StateLogCustomTags();
+            stateLogCustomTags.Id = Guid.NewGuid();
             stateLogCustomTags.RowId = nationality.Id;
             stateLogCustomTags.TagName = nationality.TagName;
             stateLogCustomTags.TagValue = nationality.TagValue;
-            stateLogCustomTags.Id = Guid.NewGuid();
             stateLogCustomTags.BranchId = nationality.BranchId;
             stateLogCustomTags.CompanyId = nationality.CompanyId;
             stateLogCustomTags.ProductId = nationality.ProductId;
-            stateLogCustomTags.EntityName = nameof(nationality);
+            stateLogCustomTags.EntityName = "nationality";
 
         using IDbContextTransaction transaction = _nationalityrepository.Context.Database.BeginTransaction();
         try
@@ -67,6 +67,12 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
     public async Task Update(List<Nationality> entities) => await _nationalityCosmosRepository.Update(entities);
 
     public async Task Delete(Nationality entity) => await _nationalityCosmosRepository.Delete(entity);
+
+    public async Task Delete(Guid id)
+    {
+        Nationality entity = await _nationalityCosmosRepository.Get(id);
+        await _nationalityCosmosRepository.Delete(entity);
+    }
 
     public async Task Delete(IEnumerable<Nationality> entities) => await _nationalityCosmosRepository.Delete(entities);
 

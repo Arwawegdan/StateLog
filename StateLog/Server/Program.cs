@@ -13,6 +13,11 @@ webApplicationBuilder.Services.AddScoped<INationalityCosmosDbRepository, Nationa
 webApplicationBuilder.Services.AddScoped<INationalityUnitOfWork, NationalityUnitOfWork>();      
 webApplicationBuilder.Services.AddScoped<INationalityRepository, NationalityRepository>();
 
+
+webApplicationBuilder.Services.AddScoped<ICurrencyCosmosDbRepository, CurrencyCosmosDbRepository>();
+webApplicationBuilder.Services.AddScoped<ICurrencyUnitOfWork, CurrencyUnitOfWork>();
+webApplicationBuilder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
+
 webApplicationBuilder.Services.AddScoped<IStateLogCustomTagsRepository, StateLogCustomTagsRepository>();
 webApplicationBuilder.Services.AddScoped<IStateLogCustomTagsUnitOfWork, StateLogCustomTagsUnitOfWork>();
 

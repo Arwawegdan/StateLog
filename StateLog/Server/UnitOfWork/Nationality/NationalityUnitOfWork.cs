@@ -5,10 +5,10 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
     private readonly IStateLogCustomTagsRepository _stateLogIndexingRepository;  
     private readonly INationalityCosmosDbRepository _nationalityCosmosRepository;
 
-    public NationalityUnitOfWork(INationalityRepository nationalityRepository, INationalityCosmosDbRepository  nationalityCosmosRepository, IStateLogCustomTagsRepository stateLogRepository)
+    public NationalityUnitOfWork(INationalityRepository nationalityRepository, INationalityCosmosDbRepository  nationalityCosmosRepository)
     { 
         _nationalityrepository = nationalityRepository;
-        _stateLogIndexingRepository = stateLogRepository;   
+        _stateLogIndexingRepository = new StateLogCustomTagsRepository(nationalityRepository.Context);   
         _nationalityCosmosRepository = nationalityCosmosRepository;
     }
     public async Task<IEnumerable<Nationality>> Read() => await _nationalityCosmosRepository.Get("SELECT * FROM c");

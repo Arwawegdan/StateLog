@@ -15,6 +15,7 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where T
 
     public virtual async Task Add(TEntity entity)
     {
+        if(entity.Id == null || entity.Id == Guid.Empty) entity.Id = Guid.NewGuid();
         ThrowExceptionIfParameterNotSupplied(entity);
 
         await dbSet.AddAsync(entity);
@@ -35,6 +36,7 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where T
 
         await SaveChangesAsync();
     }
+
     public virtual async Task Update(TEntity entity, bool isAutosSaveChangesEnabled = true)
     {
         ThrowExceptionIfParameterNotSupplied(entity);
@@ -46,6 +48,7 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where T
         if (isAutosSaveChangesEnabled)
             await SaveChangesAsync();
     }
+
     private async Task ThrowExceptionIfIfEntityExistsInDatabase(TEntity entity)
     {
         if (entity.Id == null && entity.Id != Guid.Empty)

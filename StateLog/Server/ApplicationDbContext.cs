@@ -5,6 +5,7 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new StateLogCustomTagsConfiguration())
-                    .ApplyConfiguration(new NationalityConfiguration());
+                    .ApplyConfiguration(new NationalityConfiguration())
+                    .ApplyConfiguration(new CurrencyConfiguration()); 
     }
 }

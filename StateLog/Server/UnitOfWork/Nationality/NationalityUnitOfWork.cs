@@ -1,13 +1,13 @@
 ﻿namespace StateLog.Server;
 public class NationalityUnitOfWork : INationalityUnitOfWork
 {
-    private readonly INationalityRepository _nationalityrepository; 
+    private readonly INationalityRepository _nationalityRepository; 
     private readonly IStateLogCustomTagsRepository _stateLogIndexingRepository;  
     private readonly INationalityCosmosDbRepository _nationalityCosmosRepository;
 
     public NationalityUnitOfWork(INationalityRepository nationalityRepository, INationalityCosmosDbRepository  nationalityCosmosRepository)
     { 
-        _nationalityrepository = nationalityRepository;
+        _nationalityRepository = nationalityRepository;
         _stateLogIndexingRepository = new StateLogCustomTagsRepository(nationalityRepository.Context);   
         _nationalityCosmosRepository = nationalityCosmosRepository;
     }
@@ -41,10 +41,10 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
             stateLogCustomTags.ProductId = nationality.ProductId;
             stateLogCustomTags.EntityName = "nationality";
 
-        using IDbContextTransaction transaction = _nationalityrepository.Context.Database.BeginTransaction();
+        using IDbContextTransaction transaction = _nationalityRepository.Context.Database.BeginTransaction();
         try
         {
-            await _nationalityrepository.Add(nationality);
+            await _nationalityRepository.Add(nationality);
             await _stateLogIndexingRepository.Add(stateLogCustomTags);
             await _nationalityCosmosRepository.Add(nationality);
             
@@ -62,7 +62,7 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
         foreach (Nationality entity in entities) await Create(entity);
     }
 
-    public async Task Update(Nationality entity) => await _nationalityCosmosRepository.Update(entity);
+    public async Task Update(Nationality entity) => await _nationalityRepository.Update(entity);
 
     public async Task Update(List<Nationality> entities) => await _nationalityCosmosRepository.Update(entities);
 
@@ -73,7 +73,10 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
         Nationality entity = await _nationalityCosmosRepository.Get(id);
         await _nationalityCosmosRepository.Delete(entity);
     }
-
     public async Task Delete(IEnumerable<Nationality> entities) => await _nationalityCosmosRepository.Delete(entities);
 
+    public async Task UpdateNationalitie()
+    {
+        await _nationalityRepository.UpdateNationalitie();   
+    }
 }

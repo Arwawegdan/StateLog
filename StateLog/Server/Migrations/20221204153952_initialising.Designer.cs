@@ -12,8 +12,8 @@ using StateLog.Server;
 namespace StateLog.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20221129161053_removenullableid2")]
-    partial class removenullableid2
+    [Migration("20221204153952_initialising")]
+    partial class initialising
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,36 +28,72 @@ namespace StateLog.Server.Migrations
             modelBuilder.Entity("StateLog.Shared.Nationality", b =>
                 {
                     b.Property<Guid?>("Id")
-                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("BranchId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CreatorId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("TagValue")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("TagName")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("PartitionKey")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id", "ProductId", "BranchId", "CreatorId", "Name", "TagValue", "TagName", "PartitionKey");
+
+                    b.ToTable("Nationalities", (string)null);
+                });
+
+            modelBuilder.Entity("StateLog.Shared.NationalityReducer", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("TagName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("TagValue")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("TagName")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("Datetime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PartitionKey")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id", "ProductId", "BranchId", "CreatorId", "Name", "TagValue", "TagName", "Datetime");
 
-                    b.ToTable("Nationalities", (string)null);
+                    b.ToTable("NationalityReducer", (string)null);
                 });
 
             modelBuilder.Entity("StateLog.Shared.StateLogCustomTags", b =>

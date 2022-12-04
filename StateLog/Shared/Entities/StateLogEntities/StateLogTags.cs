@@ -10,6 +10,7 @@ public class StateLogTags : BaseEntity
     public Guid BranchId { get; set; }
 
     public Guid CreatorId { get; set; }
+
     public Guid LastModeifierId { get; set; }
    
     public string? EntityName { get; set; }

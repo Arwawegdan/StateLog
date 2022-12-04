@@ -2,7 +2,7 @@
 public class Currency  : BaseSettingsEntity
 {
     [JsonProperty(PropertyName = "partitionKey")]
-    public string? PartitionKey { get; set; } = "nationality"; 
+    public string? PartitionKey { get; set; } = "currency"; 
     [JsonProperty(PropertyName = "ProductId")]
     public Guid ProductId { get; set; }
     [JsonProperty(PropertyName = "companyId")]

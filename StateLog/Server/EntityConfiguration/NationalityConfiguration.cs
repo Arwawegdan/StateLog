@@ -4,5 +4,17 @@ public class NationalityConfiguration :  BaseSettingsEntityConfiguration<Nationa
     public virtual new void Configure(EntityTypeBuilder<Nationality> builder)
     {
         builder.ToTable("Nationalities");
-    }
-}
+
+        builder.HasKey(e => new
+        {
+            e.Id,
+            e.ProductId,
+            e.BranchId,
+            e.CreatorId,
+            e.Name,
+            e.TagValue,
+            e.TagName,
+            e.PartitionKey
+        }); 
+        }
+    };

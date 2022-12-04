@@ -15,7 +15,7 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where T
 
     public virtual async Task Add(TEntity entity)
     {
-        if(entity.Id == null || entity.Id == Guid.Empty) entity.Id = Guid.NewGuid();
+        // if(entity.Id == null || entity.Id == Guid.Empty) entity.Id = Guid.NewGuid();
         ThrowExceptionIfParameterNotSupplied(entity);
 
         await dbSet.AddAsync(entity);

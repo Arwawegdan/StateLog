@@ -21,6 +21,9 @@ webApplicationBuilder.Services.AddScoped<ICurrencyRepository, CurrencyRepository
 webApplicationBuilder.Services.AddScoped<IStateLogCustomTagsRepository, StateLogCustomTagsRepository>();
 webApplicationBuilder.Services.AddScoped<IStateLogCustomTagsUnitOfWork, StateLogCustomTagsUnitOfWork>();
 
+webApplicationBuilder.Services.AddScoped<INationalityReducerRepository, NationalityReducerRepository>();
+webApplicationBuilder.Services.AddScoped<INationalityReducerUnitOfWork, NationalityReducerUnitOfWork>();
+
 
 
 webApplicationBuilder.Services.AddSignalR();

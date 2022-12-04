@@ -2,17 +2,17 @@
 public class CurrencyCosmosDbRepository : ICurrencyCosmosDbRepository 
 {
     Container _container;
-    CosmosClient dbClient;
+    private readonly CosmosClient dbClient;
     string Account = "https://statelog.documents.azure.com:443/";
     string Key = "pCy6KFciZqPs468Eq1k1ztCEInYMDIvMxKrDxsuGFafrlDUzzY9bYctkYqAcpBWOZqqUJAhMJaFJGcuiyvIaFA==";
     string databaseName = "ToDoList";
-    string containerName = "Nationality";
-    Microsoft.Azure.Cosmos.Database database = null;
-    string partitionKey = "Currency";   
+    string containerName = "Currency";
+    Microsoft.Azure.Cosmos.Database database; 
+    string partitionKey = "currency";   
  
     public CurrencyCosmosDbRepository()
     {
-        CosmosClientOptions cosmosClientOptions = new CosmosClientOptions(){ApplicationName = "StateLog"};
+        CosmosClientOptions cosmosClientOptions = new CosmosClientOptions(){ApplicationName = "StateLog" };
         dbClient = new CosmosClient(Account, Key, cosmosClientOptions);
         CreateContainerAsync();
         _container = dbClient.GetContainer(databaseName, containerName);  

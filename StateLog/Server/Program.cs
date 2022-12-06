@@ -32,9 +32,12 @@ webApplicationBuilder.Services.AddResponseCompression(options =>
     options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
 });
 
+
+//await NationalityRepository.UpdateNationalities(T);
+
+
 var app = webApplicationBuilder.Build();
 app.UseResponseCompression();
-
 if (app.Environment.IsDevelopment())
     app.UseWebAssemblyDebugging();
 else

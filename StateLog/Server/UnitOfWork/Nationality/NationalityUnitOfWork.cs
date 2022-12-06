@@ -73,10 +73,10 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
         Nationality entity = await _nationalityCosmosRepository.Get(id);
         await _nationalityCosmosRepository.Delete(entity);
     }
-    public async Task Delete(IEnumerable<Nationality> entities) => await _nationalityCosmosRepository.Delete(entities);
+    public async Task Delete(IEnumerable<Nationality> entities) => await _nationalityCosmosRepository.Delete(entities); 
 
-    public async Task UpdateNationalitie()
+    public async Task UpdateNationalities()
     {
-        await _nationalityRepository.UpdateNationalitie();   
+        await _nationalityRepository.UpdateNationalities();     
     }
 }

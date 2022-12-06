@@ -15,6 +15,7 @@ public class NationalityRepository : BaseSettingsRepository<Nationality> , INati
 
     public async Task Update(Nationality nationality)
     {
+        
        // nationality.Id = Guid.NewGuid(); 
         dbSet.Add(nationality);
         await Context.SaveChangesAsync();
@@ -52,16 +53,53 @@ public class NationalityRepository : BaseSettingsRepository<Nationality> , INati
         nationalityQueue.Datetime = DateTime.Now; 
         return nationalityQueue;
     }
-    public async Task UpdateNationalitie()
+    public  async Task UpdateNationalities()
     {
-        IEnumerable<NationalityReducer> nationalityReducer  = await _nationalityReducerRepository.Get();
-
-        Dictionary<Guid?, DateTime> reducer =  new Dictionary<Guid?, DateTime>();
-
-        foreach (NationalityReducer nationalityReducerItem in nationalityReducer)
+        using IDbContextTransaction transaction = Context.Database.BeginTransaction();
+        try
         {
-            reducer.Add(nationalityReducerItem.Id, nationalityReducerItem.Datetime); 
+            IEnumerable<NationalityReducer> nationalityReducer = await _nationalityReducerRepository.Get();
+            IEnumerable<Nationality> nationalitiesFtomDatabase = await dbSet.ToListAsync();
+            nationalityReducer = nationalityReducer.OrderBy(e => e.Datetime).ToList();
+            Nationality nationality = new Nationality();
+
+            IList<Guid?> guids = nationalityReducer.Select(e => e.Id).Distinct().ToList();
+            foreach (Guid? guid in guids)
+            {
+                foreach (NationalityReducer nationalityReducerItem in nationalityReducer)
+                {
+                    if (guid == nationalityReducerItem.Id) 
+                        nationality = MapFromNationalityReduerToNationality(nationalityReducerItem);
+                }
+                //guids.Remove(guid); 
+                // no of requests = 2*(guids which have changed)  + etnen fo2 + 
+                IEnumerable<Nationality> allIds = nationalitiesFtomDatabase.Where(e => e.Id == guid);
+                // request per guid 
+                dbSet.RemoveRange(allIds);
+                dbSet.Add(nationality);
+                await Context.SaveChangesAsync();
+                transaction.Commit(); 
+            }
         }
-        Dictionary<Guid?, DateTime> FinalReducer = new Dictionary<Guid?, DateTime>();      
+        catch (Exception exception)
+        {
+            Log.Error(exception.Message);
+            transaction.Rollback();
+            throw;
+        }
+    }
+    public Nationality MapFromNationalityReduerToNationality(NationalityReducer nationalityReducer)
+    {
+        Nationality nationality = new Nationality(); 
+        nationality.ProductId = nationalityReducer.ProductId;
+        nationality.PartitionKey = nationalityReducer.PartitionKey;
+        nationality.BranchId = nationalityReducer.BranchId;
+        nationality.CreatorId = nationalityReducer.CreatorId;
+        nationality.BranchId = nationalityReducer.BranchId;
+        nationality.Name = nationalityReducer.Name;
+        nationality.TagName = nationalityReducer.TagName;
+        nationality.TagValue = nationalityReducer.TagValue;
+        nationality.Id = nationalityReducer.Id;
+        return nationality; 
     }
 }

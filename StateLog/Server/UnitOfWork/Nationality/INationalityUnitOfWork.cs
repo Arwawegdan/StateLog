@@ -17,5 +17,5 @@ public interface INationalityUnitOfWork
     Task<IEnumerable<Nationality>> ReadByTagValue(string text);
     Task<IEnumerable<Nationality>> ReadByTagName(string text);
 
-    Task UpdateNationalitie(); 
+    Task UpdateNationalities(); 
 }

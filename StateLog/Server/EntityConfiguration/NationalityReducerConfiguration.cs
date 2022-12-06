@@ -7,12 +7,6 @@ public class NationalityReducerConfiguration : BaseSettingsEntityConfiguration<N
         builder.HasKey(e => new
         {
             e.Id,
-            e.ProductId,
-            e.BranchId,
-            e.CreatorId,
-            e.Name,
-            e.TagValue,
-            e.TagName,
             e.Datetime
         });
     } 

@@ -9,6 +9,7 @@ public interface INationalityUnitOfWork
 
     Task Update(Nationality entity);
     Task Update(List<Nationality> entities);
+    Task Update(Nationality nationality, int operation = 0);
 
     Task Delete(Nationality entity);
     Task Delete(Guid id); 

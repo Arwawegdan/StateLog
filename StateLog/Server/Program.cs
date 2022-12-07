@@ -23,6 +23,14 @@ webApplicationBuilder.Services.AddScoped<IStateLogCustomTagsUnitOfWork, StateLog
 webApplicationBuilder.Services.AddScoped<INationalityReducerRepository, NationalityReducerRepository>();
 webApplicationBuilder.Services.AddScoped<INationalityReducerUnitOfWork, NationalityReducerUnitOfWork>();
 
+webApplicationBuilder.Services.AddScoped<IEmployeeReducerRepository, EmployeeReducerRepository>();
+webApplicationBuilder.Services.AddScoped<IEmployeeReducerUnitOfWork, EmployeeReducerUnitOfWork>();
+
+
+webApplicationBuilder.Services.AddScoped<IEmployeeReducerRepository, EmployeeReducerRepository>();
+webApplicationBuilder.Services.AddScoped<IEmployeeReducerUnitOfWork, EmployeeReducerUnitOfWork>();
+
+
 webApplicationBuilder.Services.AddSignalR();
 webApplicationBuilder.Services.AddResponseCompression(options =>
 {

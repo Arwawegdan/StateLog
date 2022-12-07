@@ -10,37 +10,34 @@ public class NationalityRepository : BaseSettingsRepository<Nationality> , INati
         Context = context;
         _nationalityReducerRepository = nationalityReducerRepository;
     }
-
-    //private readonly NationalityQueue nationalityQueue = new();   
-
+    //private readonly NationalityQueue nationalityQueue = new();
     public async Task Update(Nationality nationality)
-    {
-        
-       // nationality.Id = Guid.NewGuid(); 
+    { 
         dbSet.Add(nationality);
         await Context.SaveChangesAsync();
-
-        NationalityReducer nationalityQueue = await QueueMapp(nationality); 
+        NationalityReducer nationalityQueue = await QueueMapp(nationality);
         await _nationalityReducerRepository.Add(nationalityQueue);
-
-        // await Task.Run(()=> Context.Update(nationality)); 
-        //nationalityQueue.Id = Guid.NewGuid();
-        //nationalityQueue.NationalityId = nationality.Id; 
-        //nationalityQueue.Nationality = nationality; 
-        //nationalityQueue.Queue.Append(nationality);
-        //NationalityQueue nationalityQueue = await QueueMapp(nationality); 
-        //await _nationalityQueueRepository.Add(nationalityQueue);
-        //await Context.SaveChangesAsync();
-        //dbSet.AddAsync(nationality);
-        //await Context.SaveChangesAsync();
     }
-     
+
+        public async Task Update(Nationality nationality , int operation = 0)
+     {
+        if (operation == 0)
+        {
+            await Update(nationality); 
+        }
+        else if (operation == 1)
+        {
+            nationality.NoOfEmployees += 1;
+            await Update(nationality); 
+        }   
+        else if (operation == -1)
+        {
+            nationality.NoOfEmployees -= 1;
+            await Update(nationality); 
+        }
+    }
     public async Task<NationalityReducer> QueueMapp(Nationality nationality)
-    {
-        //NationalityQueue nationalityQueue = new();
-        //await Task.Run(()=>nationalityQueue.Enqueue(nationality)); 
-        //nationalityQueue.Id = new Guid();
-        //return nationalityQueue;    
+    {  
         NationalityReducer nationalityQueue = new NationalityReducer();
         nationalityQueue.Id = nationality.Id;
         nationalityQueue.BranchId = nationality.BranchId;

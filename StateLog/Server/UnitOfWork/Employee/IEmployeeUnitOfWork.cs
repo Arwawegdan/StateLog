@@ -9,6 +9,7 @@ public interface IEmployeeUnitOfWork
 
     Task Update(Employee entity);
     Task Update(List<Employee> entities);
+    Task UpdateEmployees(); 
 
     Task Delete(Employee entity);
     Task Delete(Guid id); 

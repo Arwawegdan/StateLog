@@ -11,5 +11,5 @@ public class Employee : BaseSettingsEntity
     public string? TagValue { get; set; }
 
     [JsonProperty(PropertyName = "nationalityId")]
-    public Guid? NationalityId { get; set; }
+    public Guid NationalityId { get; set; }
 }

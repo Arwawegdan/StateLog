@@ -2,7 +2,7 @@
 public class Nationality  : BaseSettingsEntity
 {
     [JsonProperty(PropertyName = "partitionKey")]
-    public string? PartitionKey { get; set; } = "nationality"; 
+    public string PartitionKey { get; set; } = "nationality"; 
     [JsonProperty(PropertyName = "ProductId")]
     public Guid ProductId { get; set; }
     [JsonProperty(PropertyName = "companyId")]
@@ -15,4 +15,10 @@ public class Nationality  : BaseSettingsEntity
     public string? TagName { get; set; }
     [JsonProperty(PropertyName = "tagValue")]
     public string? TagValue { get; set; }
+
+    [JsonProperty(PropertyName = "noOfEmployees")]
+    public int NoOfEmployees { get; set; }
+
+
+
 }

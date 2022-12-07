@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StateLog.Server;
 
@@ -11,9 +12,11 @@ using StateLog.Server;
 namespace StateLog.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221206123157_addemployee")]
+    partial class addemployee
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,10 +42,33 @@ namespace StateLog.Server.Migrations
                     b.Property<string>("PartitionKey")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<Guid?>("NationalityId")
+                    b.Property<Guid>("NationalityId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("NationalityBranchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("NationalityCreatorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("NationalityName")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("NationalityPartitionKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid?>("NationalityProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("NationalityTagName")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("NationalityTagValue")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id", "Name", "TagValue", "TagName", "PartitionKey", "NationalityId");
+
+                    b.HasIndex("NationalityId", "NationalityProductId", "NationalityBranchId", "NationalityCreatorId", "NationalityName", "NationalityTagValue", "NationalityTagName", "NationalityPartitionKey");
 
                     b.ToTable("Employees", (string)null);
                 });
@@ -156,6 +182,15 @@ namespace StateLog.Server.Migrations
                     b.HasKey("RowId", "TagName");
 
                     b.ToTable("StateLogCustomTags", (string)null);
+                });
+
+            modelBuilder.Entity("StateLog.Shared.Employee", b =>
+                {
+                    b.HasOne("StateLog.Shared.Nationality", "Nationality")
+                        .WithMany()
+                        .HasForeignKey("NationalityId", "NationalityProductId", "NationalityBranchId", "NationalityCreatorId", "NationalityName", "NationalityTagValue", "NationalityTagName", "NationalityPartitionKey");
+
+                    b.Navigation("Nationality");
                 });
 #pragma warning restore 612, 618
         }

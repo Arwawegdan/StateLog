@@ -39,6 +39,8 @@ public class NationalityCosmosDbRepository : INationalityCosmosDbRepository
 
     public async Task<IEnumerable<Nationality>> Get(string queryString)
     {
+
+        queryString = $"select * from c where c.partitionKey like '%{partitionKey}'"; 
         FeedIterator<Nationality> query = _container.GetItemQueryIterator<Nationality>(new QueryDefinition(queryString));
         List<Nationality> entities = new();
         while (query.HasMoreResults)
@@ -68,7 +70,8 @@ public class NationalityCosmosDbRepository : INationalityCosmosDbRepository
         await Task.WhenAll(UpdateTasks).ConfigureAwait(false);
         return (IEnumerable<Nationality>)UpdateTasks;
     }
-    public async Task<Nationality> Delete(Nationality TEntity) => (await _container.DeleteItemAsync<Nationality>(TEntity.Id.ToString(), new PartitionKey(TEntity.PartitionKey))).Resource;
+    public async Task<Nationality> Delete(Nationality TEntity)
+        => (await _container.DeleteItemAsync<Nationality>(TEntity.Id.ToString(), new PartitionKey(TEntity.PartitionKey))).Resource;
 
     public async Task<IEnumerable<Nationality>> Delete(IEnumerable<Nationality> entities)
     {
@@ -78,12 +81,9 @@ public class NationalityCosmosDbRepository : INationalityCosmosDbRepository
         return (IEnumerable<Nationality>)DeleteTasks;
     }
 
-    public async Task<IEnumerable<Nationality>> GetByTagValue(string id)
-    {
-        return await Get($"SELECT * FROM c where c.RowId like '%{id}'");
-    }
-    public async Task<IEnumerable<Nationality>> GetByTagName(string id)
-    {
-        return await Get($"SELECT * FROM c where c.RowId like '%{id}'");
-    }
+    public async Task<IEnumerable<Nationality>> GetByTagValue(string id)         
+                  => await Get($"SELECT * FROM c where c.RowId like '%{id}'");
+   
+    public async Task<IEnumerable<Nationality>> GetByTagName(string id) 
+                 => await Get($"SELECT * FROM c where c.RowId like '%{id}'");
 }

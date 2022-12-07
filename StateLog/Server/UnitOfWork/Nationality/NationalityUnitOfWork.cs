@@ -1,15 +1,17 @@
 ﻿namespace StateLog.Server;
 public class NationalityUnitOfWork : INationalityUnitOfWork
 {
-    private readonly INationalityRepository _nationalityRepository; 
+    private readonly INationalityRepository _nationalityRepository;
+    private readonly IEmployeeUnitOfWork _employeeUnitOfWork; 
     private readonly IStateLogCustomTagsRepository _stateLogIndexingRepository;  
     private readonly INationalityCosmosDbRepository _nationalityCosmosRepository;
 
-    public NationalityUnitOfWork(INationalityRepository nationalityRepository, INationalityCosmosDbRepository  nationalityCosmosRepository)
+    public NationalityUnitOfWork(INationalityRepository nationalityRepository, IEmployeeUnitOfWork employeeUnitOfWork ,INationalityCosmosDbRepository  nationalityCosmosRepository)
     { 
         _nationalityRepository = nationalityRepository;
         _stateLogIndexingRepository = new StateLogCustomTagsRepository(nationalityRepository.Context);   
         _nationalityCosmosRepository = nationalityCosmosRepository;
+        _employeeUnitOfWork = employeeUnitOfWork; 
     }
     public async Task<IEnumerable<Nationality>> Read() => await _nationalityCosmosRepository.Get("SELECT * FROM c");
 
@@ -29,8 +31,16 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
         foreach (Guid id in ids) entities.Add(await _nationalityCosmosRepository.Get(id));
         return entities;
     }
+
     public async Task Create(Nationality nationality)
     {
+          var employees = await _employeeUnitOfWork.Read(); 
+          nationality.NoOfEmployees = 0; 
+       foreach (var employee in employees)
+        {
+           if (employee.NationalityId == nationality.Id)
+              nationality.NoOfEmployees += 1;      
+        }
             StateLogCustomTags stateLogCustomTags = new StateLogCustomTags();
             stateLogCustomTags.Id = Guid.NewGuid();
             stateLogCustomTags.RowId = nationality.Id;

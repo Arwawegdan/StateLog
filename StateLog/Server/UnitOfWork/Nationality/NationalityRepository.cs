@@ -53,7 +53,7 @@ public class NationalityRepository : BaseSettingsRepository<Nationality> , INati
         nationalityQueue.Datetime = DateTime.Now; 
         return nationalityQueue;
     }
-    public  async Task UpdateNationalities()
+    public async Task UpdateNationalities()
     {
         using IDbContextTransaction transaction = Context.Database.BeginTransaction();
         try

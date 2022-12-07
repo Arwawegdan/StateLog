@@ -1,5 +1,5 @@
 ﻿namespace StateLog.Server;
-public interface ICurrencyRepository : IBaseSettingsRepository<Currency>
+public interface IEmployeeRepository : IBaseSettingsRepository<Employee>
 {
     public ApplicationDbContext Context { get; }
 }

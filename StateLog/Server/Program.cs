@@ -13,10 +13,9 @@ webApplicationBuilder.Services.AddScoped<INationalityCosmosDbRepository, Nationa
 webApplicationBuilder.Services.AddScoped<INationalityUnitOfWork, NationalityUnitOfWork>();      
 webApplicationBuilder.Services.AddScoped<INationalityRepository, NationalityRepository>();
 
-
-webApplicationBuilder.Services.AddScoped<ICurrencyCosmosDbRepository, CurrencyCosmosDbRepository>();
-webApplicationBuilder.Services.AddScoped<ICurrencyUnitOfWork, CurrencyUnitOfWork>();
-webApplicationBuilder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
+webApplicationBuilder.Services.AddScoped<IEmployeeCosmosDbRepository, EmployeeCosmosDbRepository>();
+webApplicationBuilder.Services.AddScoped<IEmployeeUnitOfWork, EmployeeUnitOfWork>();
+webApplicationBuilder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
 webApplicationBuilder.Services.AddScoped<IStateLogCustomTagsRepository, StateLogCustomTagsRepository>();
 webApplicationBuilder.Services.AddScoped<IStateLogCustomTagsUnitOfWork, StateLogCustomTagsUnitOfWork>();
@@ -24,17 +23,11 @@ webApplicationBuilder.Services.AddScoped<IStateLogCustomTagsUnitOfWork, StateLog
 webApplicationBuilder.Services.AddScoped<INationalityReducerRepository, NationalityReducerRepository>();
 webApplicationBuilder.Services.AddScoped<INationalityReducerUnitOfWork, NationalityReducerUnitOfWork>();
 
-
-
 webApplicationBuilder.Services.AddSignalR();
 webApplicationBuilder.Services.AddResponseCompression(options =>
 {
     options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
 });
-
-
-//await NationalityRepository.UpdateNationalities(T);
-
 
 var app = webApplicationBuilder.Build();
 app.UseResponseCompression();

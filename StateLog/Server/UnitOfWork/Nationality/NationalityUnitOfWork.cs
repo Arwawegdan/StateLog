@@ -85,14 +85,14 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
             throw;
         }
     }
-    public Employee MapFromNationalityReduerToNationality(EmployeeReducer employeeReducer)
+    public Employee MapFromNationalityReduerToNationality(Reducer reducer)
     {
         Employee employee = new Employee();
-        employee.PartitionKey = employeeReducer.PartitionKey;
-        employee.Name = employeeReducer.Name;
-        employee.TagName = employeeReducer.TagName;
-        employee.TagValue = employeeReducer.TagValue;
-        employee.Id = employeeReducer.Id;
+        employee.PartitionKey = reducer.PartitionKey;
+        employee.Name = reducer.Name;
+        employee.TagName = reducer.TagName;
+        employee.TagValue = reducer.TagValue;
+        employee.Id = reducer.Id;
         return employee;
     }
     public async Task Create(IEnumerable<Nationality> entities)

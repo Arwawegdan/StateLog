@@ -4,15 +4,15 @@ public class EmployeeUnitOfWork : IEmployeeUnitOfWork
     private readonly IEmployeeRepository _employeeRepository; 
     private readonly IStateLogCustomTagsRepository _stateLogIndexingRepository;  
     private readonly IEmployeeCosmosDbRepository _employeeCosmosRepository;
-    private readonly IEmployeeReducerRepository _employeeReducerRepository;
+    private readonly IReducerRepository _reducerRepository;
     private readonly INationalityUnitOfWork _nationalityUnitOfWork;
 
-    public EmployeeUnitOfWork(IEmployeeRepository employeeRepository, IEmployeeReducerRepository employeeReducerRepository , IEmployeeCosmosDbRepository employeeCosmosRepository)
+    public EmployeeUnitOfWork(IEmployeeRepository employeeRepository, IReducerRepository reducerRepository , IEmployeeCosmosDbRepository employeeCosmosRepository)
     {
         _employeeRepository = employeeRepository;
         _stateLogIndexingRepository = new StateLogCustomTagsRepository(employeeRepository.Context);   
         _employeeCosmosRepository = employeeCosmosRepository;
-        _employeeReducerRepository = employeeReducerRepository;
+        _reducerRepository = reducerRepository;
     }
     public async Task<IEnumerable<Employee>> Read() => await _employeeCosmosRepository.Get($"select * from c where c.partitionKey = {"employee"}");
 
@@ -67,7 +67,8 @@ public class EmployeeUnitOfWork : IEmployeeUnitOfWork
         try
         {
             
-            IEnumerable<EmployeeReducer> employeeReducer = await _employeeReducerRepository.Get();
+            IEnumerable<Reducer> reducer = await _reducerRepository.Get();
+            IEnumerable<Reducer> employeeReducer = reducer.Where(e => e.SchemaName == "Employees"); 
             IEnumerable<Employee> employeesFromDatabase = await _employeeRepository.Get();
             employeeReducer = employeeReducer.OrderBy(e => e.Datetime).ToList();
             Employee nationality = new Employee();
@@ -75,7 +76,7 @@ public class EmployeeUnitOfWork : IEmployeeUnitOfWork
             IList<Guid?> guids = employeeReducer.Select(e => e.Id).Distinct().ToList();
             foreach (Guid? guid in guids)
             {
-                foreach (EmployeeReducer employeeReducerItem in employeeReducer)
+                foreach (Reducer employeeReducerItem in employeeReducer)
                 {
                     if (guid == employeeReducerItem.Id)
                         nationality = MapFromEmployeeReducerToNationality(employeeReducerItem);
@@ -98,14 +99,14 @@ public class EmployeeUnitOfWork : IEmployeeUnitOfWork
         }
     }
 
-    private Employee MapFromEmployeeReducerToNationality(EmployeeReducer employeeReducerItem)
+    private Employee MapFromEmployeeReducerToNationality(Reducer reducerItem)
     {
         Employee employee = new Employee();
-        employee.PartitionKey = employeeReducerItem.PartitionKey;
-        employee.Name = employeeReducerItem.Name;
-        employee.TagName = employeeReducerItem.TagName;
-        employee.TagValue = employeeReducerItem.TagValue;
-        employee.Id = employeeReducerItem.Id;
+        employee.PartitionKey = reducerItem.PartitionKey;
+        employee.Name = reducerItem.Name;
+        employee.TagName = reducerItem.TagName;
+        employee.TagValue = reducerItem.TagValue;
+        employee.Id = reducerItem.Id;
         return employee;
     }
 

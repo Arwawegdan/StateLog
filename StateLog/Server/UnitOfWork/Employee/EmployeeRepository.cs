@@ -2,7 +2,7 @@
 public class EmployeeRepository : BaseSettingsRepository<Employee> , IEmployeeRepository
 {
     public ApplicationDbContext Context { get; }
-    private readonly EmployeeReducerRepository _employeeReducerRepository; 
+    private readonly ReducerRepository _reducerRepository; 
 
     public EmployeeRepository(ApplicationDbContext context) : base(context)
     {
@@ -12,12 +12,12 @@ public class EmployeeRepository : BaseSettingsRepository<Employee> , IEmployeeRe
     {
         dbSet.Add(employee);
         await Context.SaveChangesAsync();
-        EmployeeReducer nationalityQueue = await QueueMapp(employee);
-        await _employeeReducerRepository.Add(nationalityQueue);
+        Reducer nationalityQueue = await QueueMapp(employee);
+        await _reducerRepository.Add(nationalityQueue);
     }
-    public async Task<EmployeeReducer> QueueMapp(Employee employee)
+    public async Task<Reducer> QueueMapp(Employee employee)
     {
-        EmployeeReducer employeeReducer = new EmployeeReducer();
+        Reducer employeeReducer = new Reducer();
         employeeReducer.Id = employee.Id;
         employeeReducer.PartitionKey = employee.PartitionKey;
         employeeReducer.TagValue = employee.TagValue;

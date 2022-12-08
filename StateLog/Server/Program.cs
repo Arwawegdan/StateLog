@@ -20,16 +20,8 @@ webApplicationBuilder.Services.AddScoped<IEmployeeRepository, EmployeeRepository
 webApplicationBuilder.Services.AddScoped<IStateLogCustomTagsRepository, StateLogCustomTagsRepository>();
 webApplicationBuilder.Services.AddScoped<IStateLogCustomTagsUnitOfWork, StateLogCustomTagsUnitOfWork>();
 
-webApplicationBuilder.Services.AddScoped<INationalityReducerRepository, NationalityReducerRepository>();
-webApplicationBuilder.Services.AddScoped<INationalityReducerUnitOfWork, NationalityReducerUnitOfWork>();
-
-webApplicationBuilder.Services.AddScoped<IEmployeeReducerRepository, EmployeeReducerRepository>();
-webApplicationBuilder.Services.AddScoped<IEmployeeReducerUnitOfWork, EmployeeReducerUnitOfWork>();
-
-
-webApplicationBuilder.Services.AddScoped<IEmployeeReducerRepository, EmployeeReducerRepository>();
-webApplicationBuilder.Services.AddScoped<IEmployeeReducerUnitOfWork, EmployeeReducerUnitOfWork>();
-
+webApplicationBuilder.Services.AddScoped<IReducerRepository, ReducerRepository>();
+webApplicationBuilder.Services.AddScoped<IReducerUnitOfWork, ReducerUnitOfWork>();
 
 webApplicationBuilder.Services.AddSignalR();
 webApplicationBuilder.Services.AddResponseCompression(options =>

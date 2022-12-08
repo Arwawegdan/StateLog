@@ -2,21 +2,21 @@
 public class NationalityRepository : BaseSettingsRepository<Nationality> , INationalityRepository
 {
     public ApplicationDbContext Context { get; }
-    public INationalityReducerRepository _nationalityReducerRepository; 
+    public IReducerRepository _reducerRepository; 
     private readonly Queue<Nationality> nationalityQueue = new Queue<Nationality>(); 
 
-    public NationalityRepository(ApplicationDbContext context, INationalityReducerRepository nationalityReducerRepository) : base(context)
+    public NationalityRepository(ApplicationDbContext context, IReducerRepository reducerRepository) : base(context)
     {
         Context = context;
-        _nationalityReducerRepository = nationalityReducerRepository;
+        _reducerRepository = reducerRepository;
     }
     //private readonly NationalityQueue nationalityQueue = new();
     public async Task Update(Nationality nationality)
     { 
         dbSet.Add(nationality);
         await Context.SaveChangesAsync();
-        NationalityReducer nationalityQueue = await QueueMapp(nationality);
-        await _nationalityReducerRepository.Add(nationalityQueue);
+        Reducer nationalityQueue = await QueueMapp(nationality);
+        await _reducerRepository.Add(nationalityQueue);
     }
 
         public async Task Update(Nationality nationality , int operation = 0)
@@ -36,26 +36,27 @@ public class NationalityRepository : BaseSettingsRepository<Nationality> , INati
             await Update(nationality); 
         }
     }
-    public async Task<NationalityReducer> QueueMapp(Nationality nationality)
+    public async Task<Reducer> QueueMapp(Nationality nationality)
     {  
-        NationalityReducer nationalityQueue = new NationalityReducer();
-        nationalityQueue.Id = nationality.Id;
-        nationalityQueue.BranchId = nationality.BranchId;
-        nationalityQueue.ProductId = nationality.ProductId;
-        nationalityQueue.PartitionKey = nationality.PartitionKey;
-        nationalityQueue.TagValue = nationality.TagValue;
-        nationalityQueue.TagName = nationality.TagName;
-        nationalityQueue.Name = nationality.Name;
-        nationalityQueue.CreatorId = nationalityQueue.CreatorId;
-        nationalityQueue.Datetime = DateTime.Now; 
-        return nationalityQueue;
+        Reducer reducer = new Reducer();
+        reducer.Id = nationality.Id;
+        reducer.BranchId = nationality.BranchId;
+        reducer.ProductId = nationality.ProductId;
+        reducer.PartitionKey = nationality.PartitionKey;
+        reducer.TagValue = nationality.TagValue;
+        reducer.TagName = nationality.TagName;
+        reducer.Name = nationality.Name;
+        reducer.CreatorId = nationality.CreatorId;
+        reducer.Datetime = DateTime.Now;
+        reducer.SchemaName = "Nationality"; 
+        return reducer;
     }
     public async Task UpdateNationalities()
     {
         using IDbContextTransaction transaction = Context.Database.BeginTransaction();
         try
         {
-            IEnumerable<NationalityReducer> nationalityReducer = await _nationalityReducerRepository.Get();
+            IEnumerable<Reducer> nationalityReducer = await _reducerRepository.Get();
             IEnumerable<Nationality> nationalitiesFtomDatabase = await dbSet.ToListAsync();
             nationalityReducer = nationalityReducer.OrderBy(e => e.Datetime).ToList();
             Nationality nationality = new Nationality();
@@ -63,7 +64,7 @@ public class NationalityRepository : BaseSettingsRepository<Nationality> , INati
             IList<Guid?> guids = nationalityReducer.Select(e => e.Id).Distinct().ToList();
             foreach (Guid? guid in guids)
             {
-                foreach (NationalityReducer nationalityReducerItem in nationalityReducer)
+                foreach (Reducer nationalityReducerItem in nationalityReducer)
                 {
                     if (guid == nationalityReducerItem.Id) 
                         nationality = MapFromNationalityReduerToNationality(nationalityReducerItem);
@@ -85,7 +86,7 @@ public class NationalityRepository : BaseSettingsRepository<Nationality> , INati
             throw;
         }
     }
-    public Nationality MapFromNationalityReduerToNationality(NationalityReducer nationalityReducer)
+    public Nationality MapFromNationalityReduerToNationality(Reducer nationalityReducer)
     {
         Nationality nationality = new Nationality(); 
         nationality.ProductId = nationalityReducer.ProductId;

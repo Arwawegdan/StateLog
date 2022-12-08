@@ -5,16 +5,18 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
     private readonly IStateLogCustomTagsRepository _stateLogIndexingRepository;  
     private readonly INationalityCosmosDbRepository _nationalityCosmosRepository;
 
-    public NationalityUnitOfWork(INationalityRepository nationalityRepository, IEmployeeUnitOfWork employeeUnitOfWork ,INationalityCosmosDbRepository  nationalityCosmosRepository)
+    private readonly IMapperRepository _mapperRepository;
+
+    public NationalityUnitOfWork(INationalityRepository nationalityRepository, IEmployeeUnitOfWork employeeUnitOfWork
+                ,INationalityCosmosDbRepository nationalityCosmosRepository , IMapperRepository mapperRepository)
     { 
         _nationalityRepository = nationalityRepository;
         _stateLogIndexingRepository = new StateLogCustomTagsRepository(nationalityRepository.Context);   
         _nationalityCosmosRepository = nationalityCosmosRepository;
+        _mapperRepository = mapperRepository; 
     }
-    public async Task<IEnumerable<Nationality>> Read() => await _nationalityCosmosRepository.Get("SELECT * FROM c");
-
+    public async Task<IEnumerable<Nationality>> Read() => await _nationalityCosmosRepository.Get("SELECT * FROM c where c.partitionKey like '%nationality'");
     public async Task<Nationality> Read(Guid id) => await _nationalityCosmosRepository.Get(id);
-
     public async Task<IEnumerable<Nationality>> ReadByTagValue(string text)
     { 
         List<Nationality> entities = new List<Nationality>();
@@ -29,6 +31,7 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
         foreach (Guid id in ids) entities.Add(await _nationalityCosmosRepository.Get(id));
         return entities;
     }
+
     public async Task Create(Nationality nationality)
     {
         StateLogCustomTags stateLogCustomTags = new StateLogCustomTags();
@@ -47,7 +50,7 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
             await _nationalityRepository.Add(nationality);
             await _stateLogIndexingRepository.Add(stateLogCustomTags);
             await _nationalityCosmosRepository.Add(nationality);
-            
+    
             transaction.Commit(); 
         } 
         catch (Exception exception)
@@ -57,49 +60,11 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
             throw;
         }
     }
-    public async Task Update(Nationality nationality)
-    {
-        StateLogCustomTags stateLogCustomTags = new StateLogCustomTags();
-        stateLogCustomTags.Id = Guid.NewGuid();
-        stateLogCustomTags.RowId = nationality.Id;
-        stateLogCustomTags.TagName = nationality.TagName;
-        stateLogCustomTags.TagValue = nationality.TagValue;
-        stateLogCustomTags.BranchId = nationality.BranchId;
-        stateLogCustomTags.CompanyId = nationality.CompanyId;
-        stateLogCustomTags.ProductId = nationality.ProductId;
-        stateLogCustomTags.EntityName = "nationality";
-
-        using IDbContextTransaction transaction = _nationalityRepository.Context.Database.BeginTransaction();
-        try
-        {
-            await _nationalityRepository.Update(nationality);
-            await _stateLogIndexingRepository.Update(stateLogCustomTags);
-            await _nationalityCosmosRepository.Update(nationality);
-
-            transaction.Commit();
-        }
-        catch (Exception exception)
-        {
-            Log.Error(exception.Message);
-            transaction.Rollback();
-            throw;
-        }
-    }
-    public Employee MapFromNationalityReduerToNationality(Reducer reducer)
-    {
-        Employee employee = new Employee();
-        employee.PartitionKey = reducer.PartitionKey;
-        employee.Name = reducer.Name;
-        employee.TagName = reducer.TagName;
-        employee.TagValue = reducer.TagValue;
-        employee.Id = reducer.Id;
-        return employee;
-    }
+    
     public async Task Create(IEnumerable<Nationality> entities)
     {
         foreach (Nationality entity in entities) await Create(entity);
     }
-
     public async Task Update(List<Nationality> entities)
     {
         await _nationalityCosmosRepository.Update(entities);
@@ -128,12 +93,41 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
         foreach (Nationality nationality in nationalities)
             await Delete(nationality);
     }
-    public async Task UpdateNationalities()
+
+ 
+    public async Task NationalityReducer()
     {
-        await _nationalityRepository.UpdateNationalities();     
+        using IDbContextTransaction transaction = _nationalityRepository.Context.Database.BeginTransaction();
+        try
+        {
+            IEnumerable<Mapper> mapper = await _mapperRepository.Get();
+            IEnumerable<Mapper> nationalityMapper = mapper.Where(e => e.SchemaName == "Employee");
+
+            IEnumerable<Mapper> nationalityMapperByDate = nationalityMapper.OrderBy(e => e.DateTime).ToList();
+
+            Nationality nationality = new Nationality();
+
+             foreach (Mapper nationalitymapperItem in nationalityMapperByDate)
+             {
+                if (nationalitymapperItem.ChangedColumnType == ChangedColumnType.Increamnt)
+                    nationality.StatisticalColoumn += 1;
+
+                if (nationalitymapperItem.ChangedColumnType == ChangedColumnType.Override)
+                    nationality.StatisticalColoumn = nationalitymapperItem.ChangedColumnNewValue; 
+            }
+             transaction.Commit();
+            }
+        catch (Exception exception)
+        {
+            Log.Error(exception.Message);
+            transaction.Rollback();
+            throw;
+        }
     }
-    public async Task Update(Nationality nationality, int operation = 0)
+    public async Task Update(Nationality entity)
     {
-        await _nationalityRepository.Update(nationality, operation); 
+       await _nationalityRepository.Update(entity); 
     }
+
+
 }

@@ -7,6 +7,6 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new StateLogCustomTagsConfiguration())
                     .ApplyConfiguration(new NationalityConfiguration())
                     .ApplyConfiguration(new EmployeeConfiguration())
-                    .ApplyConfiguration(new ReducerConfiguration());
+                    .ApplyConfiguration(new MapperConfiguration());
     }
 }

@@ -27,7 +27,7 @@ public class NationalitiesController : ControllerBase
     public async virtual Task Put(Nationality entity) => await _unitOfWork.Update(entity);
 
     [HttpPut("updatelastvalue")]
-    public async virtual Task Put() => await _unitOfWork.UpdateNationalities(); 
+    public async virtual Task Put() => await _unitOfWork.NationalityReducer();  
 
     [HttpDelete("{id}")]
     public async virtual Task Delete([FromRoute] Guid id) => await _unitOfWork.Delete(id);

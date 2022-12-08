@@ -4,15 +4,15 @@ public class EmployeeUnitOfWork : IEmployeeUnitOfWork
     private readonly IEmployeeRepository _employeeRepository; 
     private readonly IStateLogCustomTagsRepository _stateLogIndexingRepository;  
     private readonly IEmployeeCosmosDbRepository _employeeCosmosRepository;
-    private readonly IReducerRepository _reducerRepository;
-    private readonly INationalityUnitOfWork _nationalityUnitOfWork;
+    private readonly IMapperRepository _mapperRepository;
 
-    public EmployeeUnitOfWork(IEmployeeRepository employeeRepository, IReducerRepository reducerRepository , IEmployeeCosmosDbRepository employeeCosmosRepository)
+
+    public EmployeeUnitOfWork(IEmployeeRepository employeeRepository, IEmployeeCosmosDbRepository employeeCosmosRepository, IMapperRepository mapperRepository)
     {
         _employeeRepository = employeeRepository;
-        _stateLogIndexingRepository = new StateLogCustomTagsRepository(employeeRepository.Context);   
+        _stateLogIndexingRepository = new StateLogCustomTagsRepository(employeeRepository.Context);
         _employeeCosmosRepository = employeeCosmosRepository;
-        _reducerRepository = reducerRepository;
+        _mapperRepository = mapperRepository;
     }
     public async Task<IEnumerable<Employee>> Read() => await _employeeCosmosRepository.Get($"select * from c where c.partitionKey = {"employee"}");
 
@@ -32,12 +32,10 @@ public class EmployeeUnitOfWork : IEmployeeUnitOfWork
         foreach (Guid id in ids) entities.Add(await _employeeCosmosRepository.Get(id));
         return entities;
     }
+    
     public async Task Create(Employee employee)
     {
         Guid nationalityId = employee.NationalityId;
-        Nationality nationality = await _nationalityUnitOfWork.Read(nationalityId);
-        await _nationalityUnitOfWork.Update(nationality, 1); 
-     
         StateLogCustomTags stateLogCustomTags = new StateLogCustomTags();
             stateLogCustomTags.Id = Guid.NewGuid();
             stateLogCustomTags.RowId = employee.Id;
@@ -60,87 +58,67 @@ public class EmployeeUnitOfWork : IEmployeeUnitOfWork
             throw;
         }
     }
-    public async Task UpdateEmployees()
+
+    public async Task Update(Employee employee)
     {
+        Guid nationalityId = employee.NationalityId;        
+        StateLogCustomTags stateLogCustomTags = new StateLogCustomTags();
+        stateLogCustomTags.Id = Guid.NewGuid();
+        stateLogCustomTags.RowId = employee.Id;
+        stateLogCustomTags.EntityName = "Employee";
+        stateLogCustomTags.TagValue = employee.TagValue;
+        stateLogCustomTags.TagName = employee.TagName;
 
         using IDbContextTransaction transaction = _employeeRepository.Context.Database.BeginTransaction();
         try
         {
-            
-            IEnumerable<Reducer> reducer = await _reducerRepository.Get();
-            IEnumerable<Reducer> employeeReducer = reducer.Where(e => e.SchemaName == "Employees"); 
-            IEnumerable<Employee> employeesFromDatabase = await _employeeRepository.Get();
-            employeeReducer = employeeReducer.OrderBy(e => e.Datetime).ToList();
-            Employee nationality = new Employee();
+            await _employeeRepository.Update(employee);
+            await _stateLogIndexingRepository.Update(stateLogCustomTags);
+            await _employeeCosmosRepository.Update(employee);
 
-            IList<Guid?> guids = employeeReducer.Select(e => e.Id).Distinct().ToList();
-            foreach (Guid? guid in guids)
-            {
-                foreach (Reducer employeeReducerItem in employeeReducer)
-                {
-                    if (guid == employeeReducerItem.Id)
-                        nationality = MapFromEmployeeReducerToNationality(employeeReducerItem);
-                }
-                //guids.Remove(guid); 
-                // no of requests = 2*(guids which have changed)  + etnen fo2 + 
-                IEnumerable<Employee> allIds = employeesFromDatabase.Where(e => e.Id == guid); 
-         
-                await _employeeRepository.Remove(allIds); 
-                await _employeeRepository.Add(nationality);
-                await _employeeRepository.Context.SaveChangesAsync();
-                transaction.Commit();
-            }
+            transaction.Commit();
+            Employee employeeFromDatabase = await _employeeRepository.Get(employee.Id);
+            await EmployeeMapper(employee, employeeFromDatabase.NationalityId, employee.NationalityId);
         }
         catch (Exception exception)
         {
             Log.Error(exception.Message);
             transaction.Rollback();
             throw;
+        }       
+    }
+    public async Task EmployeeMapper(Employee employee, Guid oldId, Guid newId)
+    {
+        Mapper mapper = new Mapper();
+        if (oldId != newId)
+        {
+            mapper.SchemaName = "Employee";
+            mapper.UpdatedColoumn = "StatisticalColoumn";  
+            mapper.ChangedColumnType = ChangedColumnType.Increamnt;
+            mapper.ChangedColumnNewValue = 1; 
+            mapper.DateTime = DateTime.Now;
+            mapper.Id = employee.Id;
+
+            await _mapperRepository.Add(mapper); 
         }
     }
-
-    private Employee MapFromEmployeeReducerToNationality(Reducer reducerItem)
-    {
-        Employee employee = new Employee();
-        employee.PartitionKey = reducerItem.PartitionKey;
-        employee.Name = reducerItem.Name;
-        employee.TagName = reducerItem.TagName;
-        employee.TagValue = reducerItem.TagValue;
-        employee.Id = reducerItem.Id;
-        return employee;
-    }
-
     public async Task Create(IEnumerable<Employee> entities)
     {
         foreach (Employee entity in entities) await Create(entity);
     }
-
     public async Task Update(List<Employee> entities)
     {
         await _employeeCosmosRepository.Update(entities);
     }
-
     public async Task Delete(Employee employee)
     {
         Guid nationalityId = employee.NationalityId;
-        Nationality nationality = await _nationalityUnitOfWork.Read(nationalityId);
-        await _nationalityUnitOfWork.Update(nationality, -1);
         await _employeeCosmosRepository.Delete(employee);
     }
-
     public async Task Delete(Guid id)
     {
         Employee entity = await _employeeCosmosRepository.Get(id);
         await _employeeCosmosRepository.Delete(entity);
     }
-
     public async Task Delete(IEnumerable<Employee> entities) => await _employeeCosmosRepository.Delete(entities);
-
-    public async Task Update(Employee employee)
-    {
-       // Employee employee = await _employeeRepository.Get()
-       //  await _employeeRepository.Update(employee);
-
-    }
-
 }

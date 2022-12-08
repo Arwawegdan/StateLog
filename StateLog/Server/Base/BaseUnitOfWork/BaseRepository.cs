@@ -54,7 +54,7 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where T
         if (entity.Id == null && entity.Id != Guid.Empty)
             throw new ArgumentNullException($"Id of {typeof(TEntity).Name} is null or has an empty GUID");
 
-        TEntity? entityFromDb = await Get(entity.Id.Value);
+        TEntity? entityFromDb = await Get(entity.Id);
         if (entityFromDb == null)
             throw new ArgumentNullException($"{nameof(TEntity)} was not found in DB");
     }
@@ -73,7 +73,7 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where T
         if (entity == null || entity.Id == null)
             throw new ArgumentNullException($"{nameof(TEntity)} was not provided.");
 
-        TEntity? entityFromDb = await Get(entity.Id.Value);
+        TEntity? entityFromDb = await Get(entity.Id);
         if (entityFromDb == null)
             throw new ArgumentNullException($"{nameof(TEntity)} was not found in DB");
 

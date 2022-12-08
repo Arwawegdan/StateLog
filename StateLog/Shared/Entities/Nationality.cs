@@ -16,9 +16,6 @@ public class Nationality  : BaseSettingsEntity
     [JsonProperty(PropertyName = "tagValue")]
     public string? TagValue { get; set; }
 
-    [JsonProperty(PropertyName = "noOfEmployees")]
-    public int NoOfEmployees { get; set; }
-
-
-
+    [JsonProperty(PropertyName = "statisticalColoumn")]
+    public int StatisticalColoumn { get; set; }   
 }

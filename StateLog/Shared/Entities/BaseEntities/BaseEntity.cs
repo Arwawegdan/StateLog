@@ -2,5 +2,5 @@
 public abstract class BaseEntity
 {
     [JsonProperty(PropertyName = "id")]
-    public Guid? Id { get; set; }
+    public Guid Id { get; set; }
 }

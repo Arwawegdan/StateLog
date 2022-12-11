@@ -48,7 +48,8 @@ public class EmployeeUnitOfWork : IEmployeeUnitOfWork
             await _employeeRepository.Add(employee);
             await _stateLogIndexingRepository.Add(stateLogCustomTags);
             await _employeeCosmosRepository.Add(employee);
-            
+            await EmployeeMapper(employee, employee.NationalityId);
+
             transaction.Commit(); 
         } 
         catch (Exception exception)
@@ -76,9 +77,10 @@ public class EmployeeUnitOfWork : IEmployeeUnitOfWork
             await _stateLogIndexingRepository.Update(stateLogCustomTags);
             await _employeeCosmosRepository.Update(employee);
 
-            transaction.Commit();
             Employee employeeFromDatabase = await _employeeRepository.Get(employee.Id);
             await EmployeeMapper(employee, employeeFromDatabase.NationalityId, employee.NationalityId);
+
+            transaction.Commit();
         }
         catch (Exception exception)
         {
@@ -91,16 +93,28 @@ public class EmployeeUnitOfWork : IEmployeeUnitOfWork
     {
         Mapper mapper = new Mapper();
         if (oldId != newId)
-        {
-            mapper.SchemaName = "Employee";
-            mapper.UpdatedColoumn = "StatisticalColoumn";  
+        { 
+            mapper.SchemaName = nameof(Employee);
+            mapper.UpdatedColoumn = nameof(Employee.NationalityId);
             mapper.ChangedColumnType = ChangedColumnType.Increamnt;
-            mapper.ChangedColumnNewValue = 1; 
+            mapper.ChangedColumnNewValue = "1"; 
             mapper.DateTime = DateTime.Now;
             mapper.Id = employee.Id;
 
             await _mapperRepository.Add(mapper); 
         }
+    }
+    public async Task EmployeeMapper(Employee employee, Guid newId)
+    {
+        Mapper mapper = new Mapper();
+        mapper.SchemaName = nameof(Employee);
+        mapper.UpdatedColoumn = nameof(Employee.NationalityId); 
+        mapper.ChangedColumnType = ChangedColumnType.Override;
+        mapper.ChangedColumnNewValue = "1";
+        mapper.DateTime = DateTime.Now;
+        mapper.Id = employee.Id;
+        await _mapperRepository.Add(mapper);
+        
     }
     public async Task Create(IEnumerable<Employee> entities)
     {

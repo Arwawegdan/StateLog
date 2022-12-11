@@ -5,5 +5,6 @@
         public string UpdatedColoumn { get; set; }
         public DateTime DateTime { get; set; }
         public ChangedColumnType ChangedColumnType { get; set; }
-        public int ChangedColumnNewValue { get; set; }
-    }
+        public string ChangedColumnNewValue { get; set; }
+        public Guid ColoumnId { get; set; }
+}

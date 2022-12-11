@@ -79,14 +79,13 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
             Nationality nationality = await _nationalityCosmosRepository.Get(id);
             await _nationalityCosmosRepository.Delete(nationality);
             transaction.Commit();
-    } 
+        } 
         catch (Exception exception)
         {
             Log.Error(exception.Message);
             transaction.Rollback();  
             throw;
         }
-
     }
     public async Task Delete(IEnumerable<Nationality> nationalities)
     {
@@ -105,16 +104,19 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
 
             IEnumerable<Mapper> nationalityMapperByDate = nationalityMapper.OrderBy(e => e.DateTime).ToList();
 
-            Nationality nationality = new Nationality();
 
              foreach (Mapper nationalitymapperItem in nationalityMapperByDate)
              {
+                Nationality nationality = await _nationalityRepository.Get(nationalitymapperItem.ColoumnId);
                 if (nationalitymapperItem.ChangedColumnType == ChangedColumnType.Increamnt)
                     nationality.StatisticalColoumn += 1;
+                await _nationalityRepository.Update(nationality); 
+                await _nationalityCosmosRepository.Update(nationality);
 
                 if (nationalitymapperItem.ChangedColumnType == ChangedColumnType.Override)
-                    nationality.StatisticalColoumn = nationalitymapperItem.ChangedColumnNewValue; 
+                    nationality.StatisticalColoumn = Int32.Parse(nationalitymapperItem.ChangedColumnNewValue); 
             }
+            await _mapperRepository.Remove(nationalityMapper); 
              transaction.Commit();
             }
         catch (Exception exception)

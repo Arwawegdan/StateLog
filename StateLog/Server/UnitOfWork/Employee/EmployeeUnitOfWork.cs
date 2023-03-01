@@ -86,7 +86,7 @@ public class EmployeeUnitOfWork : IEmployeeUnitOfWork
             await _employeeCosmosRepository.Update(employee);
 
             Employee employeeFromDatabase = await _employeeRepository.Get(employee.Id);
-            await EmployeeMapper(employee, employeeFromDatabase.NationalityId, employee.NationalityId);
+            await EmployeeMapper(employee, employeeFromDatabase.NationalityId);
 
             transaction.Commit();
         }
@@ -110,9 +110,9 @@ public class EmployeeUnitOfWork : IEmployeeUnitOfWork
         await _mapperRepository.Add(mapper);
         
     }
-    public async Task EmployeeMapper(Employee employee, Guid oldId, Guid newId)
+    public async Task EmployeeMapper(Employee employee, Guid oldId)
     {
-        if (oldId != newId)
+        if (oldId != employee.NationalityId)
         { 
             Mapper mapper = new Mapper();
             mapper.SchemaName = nameof(Employee);
@@ -122,7 +122,7 @@ public class EmployeeUnitOfWork : IEmployeeUnitOfWork
             mapper.ChangedColumnNewValue = "1"; 
             mapper.DateTime = DateTime.Now;
             mapper.Id = employee.Id;
-
+            mapper.ColoumnId = employee.NationalityId; 
             await _mapperRepository.Add(mapper); 
         }
     }

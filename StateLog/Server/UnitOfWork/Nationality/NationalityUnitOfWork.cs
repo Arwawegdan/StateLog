@@ -42,7 +42,9 @@ public class NationalityUnitOfWork : INationalityUnitOfWork
             stateLogCustomTags.BranchId = nationality.BranchId;
             stateLogCustomTags.CompanyId = nationality.CompanyId;
             stateLogCustomTags.ProductId = nationality.ProductId;
-            stateLogCustomTags.EntityName = "nationality";
+            stateLogCustomTags.EntityName = nameof(nationality);
+            stateLogCustomTags.DateTime = DateTime.Now; 
+            
 
         using IDbContextTransaction transaction = _nationalityRepository.Context.Database.BeginTransaction();
         try

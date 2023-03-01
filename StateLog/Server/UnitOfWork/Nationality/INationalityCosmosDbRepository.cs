@@ -11,6 +11,7 @@ public interface INationalityCosmosDbRepository
     Task<IEnumerable<Nationality>> Update(IEnumerable<Nationality> entities);
 
     Task<Nationality> Delete(Nationality entity);
+
     Task<IEnumerable<Nationality>> Delete(IEnumerable<Nationality> entities);
 
     Task<IEnumerable<Nationality>> GetByTagValue(string text);
